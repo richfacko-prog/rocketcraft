@@ -1,0 +1,21 @@
+// Cloudflare Workers config.
+// - Serves the built game (dist/) as static assets.
+// - Runs the multiplayer API (worker/index.ts) on /api/*: a global Lobby Durable Object
+//   (players, teams, leaderboard, matchmaking) and one Room Durable Object per match (relay).
+{
+  "name": "rocketcraft",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  "durable_objects": {
+    "bindings": [
+      { "name": "LOBBY", "class_name": "Lobby" },
+      { "name": "ROOM", "class_name": "Room" }
+    ]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Lobby", "Room"] }]
+}

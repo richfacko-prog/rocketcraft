@@ -1,0 +1,25 @@
+{
+  "name": "rocketcraft",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:api": "wrangler dev --port 8787",
+    "build": "tsc --noEmit && tsc -p worker/tsconfig.json && vite build --base=./",
+    "deploy": "npm run build && wrangler deploy",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit && tsc -p worker/tsconfig.json"
+  },
+  "dependencies": {
+    "@dimforge/rapier3d-compat": "^0.21.0",
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261029.1",
+    "@types/three": "^0.186.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4",
+    "wrangler": "^4.156.0"
+  }
+}

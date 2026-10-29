@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Racecraft</title>
+    <meta name="description" content="Racecraft: rocket-powered 3D car soccer in your browser. Play 1v1 or 2v2 against bots with keyboard, mouse or gamepad, and build your dream car in the garage." />
+    <meta property="og:title" content="Racecraft" />
+    <meta property="og:description" content="Rocket-powered 3D car soccer in your browser. Keyboard, mouse or gamepad." />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#05070d" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2305070d'/%3E%3Cpath d='M18 50 30 14h8L26 50z' fill='%232f8cff'/%3E%3Cpath d='M32 50 44 14h8L40 50z' fill='%23ff8a1e'/%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Saira+Condensed:ital,wght@1,700;1,800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <div id="loading" class="overlay">
+      <div class="loading-text">LOADING…</div>
+    </div>
+
+    <!-- Main menu -->
+    <div id="menu" class="overlay menu hidden">
+      <div class="menu-shell">
+        <div class="menu-main">
+          <div class="brand">
+            <div class="brand-mark"><span class="b"></span><span class="o"></span></div>
+            <h1>RACECRAFT</h1>
+          </div>
+          <div class="tagline">Rocket-powered car soccer in your browser</div>
+          <div class="row">
+            <div class="label">MODE</div>
+            <div class="seg" data-group="mode">
+              <button type="button" data-v="1v1" class="sel">1v1 Duel</button>
+              <button type="button" data-v="2v2">2v2 Doubles</button>
+            </div>
+          </div>
+          <div class="row">
+            <div class="label">CONTROLS</div>
+            <div class="seg" data-group="scheme">
+              <button type="button" data-v="rl" class="sel">Rocket League</button>
+              <button type="button" data-v="keyboard">Keyboard only</button>
+            </div>
+          </div>
+          <div class="row">
+            <div class="label">BOTS</div>
+            <div class="seg" data-group="diff">
+              <button type="button" data-v="rookie">Rookie</button>
+              <button type="button" data-v="pro" class="sel">Pro</button>
+              <button type="button" data-v="allstar">All-Star</button>
+            </div>
+          </div>
+          <div class="menu-actions">
+            <button type="button" id="play" class="play" data-default>PLAY VS BOTS</button>
+            <button type="button" id="open-online" class="secondary online-btn">
+              <span>PLAY ONLINE</span><small>Quick play · Private rooms · Teams · Leaderboard</small>
+            </button>
+            <button type="button" id="open-garage" class="secondary garage-btn">
+              <span>GARAGE</span><small>Customize your car · Dream Car Designer</small>
+            </button>
+          </div>
+          <p class="menu-note">No mouse needed: <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> or D-pad to move, <kbd>Enter</kbd> or <kbd>A</kbd> to select, <kbd>Esc</kbd> or <kbd>B</kbd> to go back.<br />2v2 is you and a bot teammate against two bots.</p>
+        </div>
+        <div class="menu-controls" id="menu-controls"></div>
+      </div>
+    </div>
+
+    <!-- Online -->
+    <div id="online" class="overlay menu online hidden">
+      <div class="menu-card online-card">
+        <header class="on-top">
+          <button type="button" id="on-back" class="g-btn">← Menu</button>
+          <h2>PLAY ONLINE</h2>
+          <div class="on-profile">
+            <label for="on-name">Your name</label>
+            <input id="on-name" maxlength="16" autocomplete="off" />
+            <button type="button" id="on-name-save" class="g-btn">Save</button>
+            <span id="on-rank" class="on-rank"></span>
+          </div>
+        </header>
+        <div id="on-status" class="on-status" role="status" aria-live="polite"></div>
+        <nav id="on-tabs" class="on-tabs">
+          <button type="button" class="on-tab sel" data-tab="play" data-default>Play</button>
+          <button type="button" class="on-tab" data-tab="teams">Teams</button>
+          <button type="button" class="on-tab" data-tab="board">Leaderboard</button>
+        </nav>
+        <section data-pane="play">
+          <div class="on-cols">
+            <div class="on-col">
+              <h3>QUICK PLAY</h3>
+              <p id="on-qstate" class="on-muted"></p>
+              <div class="on-row">
+                <button type="button" id="on-q1" class="play">1v1</button>
+                <button type="button" id="on-q2" class="play">2v2</button>
+              </div>
+              <button type="button" id="on-qcancel" class="secondary hidden">Stop searching</button>
+            </div>
+            <div class="on-col">
+              <h3>PRIVATE ROOM</h3>
+              <p class="on-muted">Create a room and send the code to your friends. Empty seats are filled with bots.</p>
+              <div class="on-row">
+                <button type="button" id="on-create1" class="g-btn primary">Create 1v1 room</button>
+                <button type="button" id="on-create2" class="g-btn primary">Create 2v2 room</button>
+              </div>
+              <div class="on-row">
+                <label for="on-code" class="sr-only">Room code</label>
+                <input id="on-code" maxlength="5" placeholder="Room code" autocomplete="off" />
+                <button type="button" id="on-join" class="g-btn">Join</button>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section data-pane="teams" id="on-teams" class="hidden"></section>
+        <section data-pane="board" id="on-board" class="hidden"></section>
+        <section id="on-room" class="hidden"></section>
+      </div>
+    </div>
+
+    <!-- Pause -->
+    <div id="pause" class="overlay menu hidden">
+      <div class="menu-card small">
+        <h2>PAUSED</h2>
+        <button type="button" id="resume" class="play" data-default>RESUME</button>
+        <button type="button" id="restart" class="secondary">RESTART MATCH</button>
+        <p id="pause-note" class="on-muted hidden">Online matches keep running while this menu is open.</p>
+        <div class="settings">
+          <label for="set-dist">Camera distance <output id="set-dist-v"></output></label>
+          <input type="range" id="set-dist" min="5" max="12" step="0.25" />
+          <label for="set-fov">Field of view <output id="set-fov-v"></output></label>
+          <input type="range" id="set-fov" min="60" max="100" step="1" />
+          <label class="check"><input type="checkbox" id="set-ballcam" /> Ball cam</label>
+        </div>
+        <button type="button" id="quit" class="secondary">QUIT TO MENU</button>
+      </div>
+    </div>
+
+    <!-- End of match -->
+    <div id="end" class="overlay menu hidden">
+      <div class="menu-card">
+        <h2 id="end-title">VICTORY</h2>
+        <p id="end-note" class="on-muted" style="text-align:center"></p>
+        <div class="final-score"><span class="b" id="end-blue">0</span><span class="dash">–</span><span class="o" id="end-orange">0</span></div>
+        <div class="stats-wrap"><table class="stats" id="end-stats"></table></div>
+        <div class="end-buttons">
+          <button type="button" id="again" class="play" data-default>PLAY AGAIN</button>
+          <button type="button" id="tomenu" class="secondary">MAIN MENU</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Garage -->
+    <div id="garage" class="garage hidden">
+      <header class="g-top">
+        <button type="button" id="g-back" class="g-btn">← Menu</button>
+        <h2>GARAGE</h2>
+        <span id="g-status" class="g-status"></span>
+        <div class="g-top-actions">
+          <button type="button" id="g-random" class="g-btn">Randomize</button>
+          <button type="button" id="g-revert" class="g-btn">Revert</button>
+          <button type="button" id="g-save" class="g-btn primary">Save &amp; Equip</button>
+        </div>
+      </header>
+      <aside class="g-ai" aria-label="Dream Car Designer">
+        <div class="g-ai-head">
+          <h3>DREAM CAR DESIGNER</h3>
+          <span id="g-ai-badge" class="g-badge">LOCAL</span>
+        </div>
+        <p id="g-ai-label" class="g-ai-sub"></p>
+        <label for="g-prompt" class="sr-only">Describe your dream car</label>
+        <textarea id="g-prompt" maxlength="600" rows="4" placeholder="Describe your dream car: colors, body shape, rims, wing, decals, boost…"></textarea>
+        <div id="g-examples" class="g-examples"></div>
+        <div class="g-ai-actions">
+          <button type="button" id="g-generate" class="g-btn primary">Generate</button>
+          <button type="button" id="g-regen" class="g-btn" disabled>Regenerate</button>
+          <button type="button" id="g-preview" class="g-btn" disabled>Preview</button>
+          <button type="button" id="g-apply" class="g-btn" disabled>Apply to car</button>
+        </div>
+        <div id="g-result" class="g-result">The designer reads your description and picks matching parts from the garage. Ctrl+Enter generates.</div>
+      </aside>
+      <aside class="g-options" aria-label="Customization">
+        <nav id="g-tabs" class="g-tabs"></nav>
+        <div id="g-panes" class="g-panes"></div>
+      </aside>
+      <div class="g-drag">Drag to rotate · scroll to zoom · arrows / D-pad to move between options · Esc to go back</div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
